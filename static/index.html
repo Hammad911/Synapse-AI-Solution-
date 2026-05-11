@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Research Assistant</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <div class="app">
+      <header class="header">
+        <div class="brand">
+          <span class="logo" aria-hidden="true">◆</span>
+          <div>
+            <h1>Research Assistant</h1>
+            <p class="tagline">LangGraph · Groq · Tavily</p>
+          </div>
+        </div>
+        <div class="header-actions">
+          <button type="button" class="btn ghost" id="btn-new-chat" title="Start a new conversation">
+            New chat
+          </button>
+        </div>
+      </header>
+
+      <main class="main">
+        <div class="chat-panel">
+          <div id="messages" class="messages" aria-live="polite"></div>
+          <div id="clarify-banner" class="clarify-banner hidden" role="status">
+            <span class="clarify-label">Clarification needed</span>
+            <p id="clarify-text" class="clarify-text"></p>
+          </div>
+          <form id="composer" class="composer">
+            <textarea
+              id="input"
+              rows="2"
+              placeholder="Ask about a company, financials, news, competitors…"
+              autocomplete="off"
+            ></textarea>
+            <button type="submit" class="btn primary" id="btn-send">
+              <span id="btn-label">Send</span>
+              <span id="btn-spinner" class="spinner hidden" aria-hidden="true"></span>
+            </button>
+          </form>
+          <p id="error-bar" class="error-bar hidden" role="alert"></p>
+        </div>
+        <aside class="side">
+          <h2>How it works</h2>
+          <ol class="steps">
+            <li><strong>Clarity</strong> checks your question and may ask you to name a company.</li>
+            <li><strong>Research</strong> pulls web sources via Tavily.</li>
+            <li><strong>Validator</strong> can trigger extra research passes.</li>
+            <li><strong>Synthesis</strong> writes the structured answer.</li>
+          </ol>
+          <p class="hint">
+            Follow-ups work once a company is in context (e.g. “What about their CEO?”).
+          </p>
+        </aside>
+      </main>
+    </div>
+    <script src="/static/app.js"></script>
+  </body>
+</html>
