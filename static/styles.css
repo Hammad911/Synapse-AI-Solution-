@@ -152,6 +152,83 @@ body {
   padding-left: 1.2em;
 }
 
+.assistant-turn {
+  align-self: flex-start;
+  max-width: 92%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.assistant-turn .msg.assistant {
+  max-width: 100%;
+  align-self: stretch;
+}
+
+.run-metrics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 0.55rem;
+  align-items: flex-start;
+  padding: 0 0.1rem 0.15rem;
+}
+
+.metric {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.35rem;
+  padding: 0.28rem 0.6rem;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: rgba(0, 0, 0, 0.22);
+  font-size: 0.78rem;
+}
+
+.metric-k {
+  font-size: 0.62rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+}
+
+.metric-v {
+  font-family: var(--mono);
+  font-weight: 600;
+  color: var(--text);
+}
+
+.metric-ok {
+  border-color: rgba(80, 180, 120, 0.45);
+  background: rgba(80, 180, 120, 0.08);
+}
+
+.metric-warn {
+  border-color: rgba(232, 168, 56, 0.45);
+  background: rgba(232, 168, 56, 0.1);
+}
+
+.metric-bad {
+  border-color: rgba(240, 113, 120, 0.45);
+  background: rgba(240, 113, 120, 0.08);
+}
+
+.metric-muted {
+  border-color: var(--border);
+  opacity: 0.9;
+}
+
+.metric-neutral {
+  border-color: var(--border);
+}
+
+.metric-note {
+  flex-basis: 100%;
+  font-size: 0.72rem;
+  color: var(--muted);
+  line-height: 1.35;
+  margin: 0;
+}
+
 .clarify-banner {
   margin: 0 1rem;
   padding: 0.75rem 1rem;

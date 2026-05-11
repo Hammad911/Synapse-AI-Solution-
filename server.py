@@ -72,6 +72,43 @@ class ChatResponse(BaseModel):
     text: Optional[str] = None
     question: Optional[str] = None
     detail: Optional[str] = None
+    # Filled on kind=="reply" — final graph state for this turn
+    clarity_status: Optional[str] = None
+    confidence_score: Optional[int] = None
+    validation_result: Optional[str] = None
+    validation_reason: Optional[str] = None
+    research_attempts: Optional[int] = None
+
+
+def _run_metrics_from_result(result: dict) -> dict:
+    """Extract scoring / routing fields from graph output for the UI."""
+    out: dict = {
+        "clarity_status": None,
+        "confidence_score": None,
+        "validation_result": None,
+        "validation_reason": None,
+        "research_attempts": None,
+    }
+    cs = (result.get("clarity_status") or "").strip()
+    if cs:
+        out["clarity_status"] = cs
+    vr = (result.get("validation_result") or "").strip()
+    if vr:
+        out["validation_result"] = vr
+    reason = (result.get("validation_reason") or "").strip()
+    if reason:
+        out["validation_reason"] = reason
+    try:
+        if result.get("confidence_score") is not None:
+            out["confidence_score"] = int(result["confidence_score"])
+    except (TypeError, ValueError):
+        pass
+    try:
+        if result.get("research_attempts") is not None:
+            out["research_attempts"] = int(result["research_attempts"])
+    except (TypeError, ValueError):
+        pass
+    return out
 
 
 def _initial_state(messages: list, query: str) -> dict:
@@ -133,10 +170,12 @@ async def chat(req: ChatRequest):
             s.awaiting_clarification = False
             s.messages = result.get("messages") or s.messages
             final = (result.get("final_response") or "").strip()
+            metrics = _run_metrics_from_result(result)
             return ChatResponse(
                 ok=True,
                 kind="reply",
                 text=final or "(No response text produced.)",
+                **metrics,
             )
 
         # New graph turn
@@ -152,10 +191,12 @@ async def chat(req: ChatRequest):
 
         s.messages = result.get("messages") or s.messages
         final = (result.get("final_response") or "").strip()
+        metrics = _run_metrics_from_result(result)
         return ChatResponse(
             ok=True,
             kind="reply",
             text=final or "(No response text produced.)",
+            **metrics,
         )
 
     except Exception as e:

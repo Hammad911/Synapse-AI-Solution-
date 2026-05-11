@@ -65,6 +65,100 @@
     el.messages.scrollTop = el.messages.scrollHeight;
   }
 
+  function hasMetrics(m) {
+    if (!m) return false;
+    return (
+      m.clarity_status != null ||
+      m.confidence_score != null ||
+      m.validation_result != null ||
+      m.research_attempts != null ||
+      (m.validation_reason != null && String(m.validation_reason).trim() !== "")
+    );
+  }
+
+  function appendAssistantReply(text, metrics) {
+    const wrap = document.createElement("div");
+    wrap.className = "assistant-turn";
+
+    const body = document.createElement("div");
+    body.className = "msg assistant";
+    body.innerHTML = simpleMarkdown(text || "");
+    wrap.appendChild(body);
+
+    if (hasMetrics(metrics)) {
+      wrap.appendChild(buildMetricsEl(metrics));
+    }
+
+    el.messages.appendChild(wrap);
+    el.messages.scrollTop = el.messages.scrollHeight;
+  }
+
+  function buildMetricsEl(m) {
+    const row = document.createElement("div");
+    row.className = "run-metrics";
+    row.setAttribute("aria-label", "Run scores and routing");
+
+    const chips = [];
+
+    if (m.clarity_status) {
+      const ok = String(m.clarity_status).toLowerCase() === "clear";
+      chips.push(metricChip("Clarity", m.clarity_status, ok ? "metric-ok" : "metric-warn"));
+    }
+
+    if (m.confidence_score != null && m.confidence_score !== "") {
+      const n = Number(m.confidence_score);
+      const hi = !Number.isNaN(n) && n >= 6;
+      chips.push(
+        metricChip("Research confidence", `${n}/10`, hi ? "metric-ok" : "metric-warn")
+      );
+    }
+
+    if (m.validation_result) {
+      const vr = String(m.validation_result).toLowerCase();
+      const suff = vr === "sufficient";
+      chips.push(
+        metricChip(
+          "Validator",
+          m.validation_result,
+          suff ? "metric-ok" : "metric-bad"
+        )
+      );
+    } else if (m.confidence_score != null && Number(m.confidence_score) >= 6) {
+      chips.push(metricChip("Validator", "skipped (score ≥ 6)", "metric-muted"));
+    }
+
+    if (m.research_attempts != null && m.research_attempts !== "") {
+      chips.push(
+        metricChip("Research passes", String(m.research_attempts), "metric-neutral")
+      );
+    }
+
+    chips.forEach((c) => row.appendChild(c));
+
+    if (m.validation_reason && String(m.validation_reason).trim()) {
+      const note = document.createElement("div");
+      note.className = "metric-note";
+      note.textContent = m.validation_reason;
+      row.appendChild(note);
+    }
+
+    return row;
+  }
+
+  function metricChip(label, value, cls) {
+    const span = document.createElement("span");
+    span.className = "metric " + (cls || "");
+    const k = document.createElement("span");
+    k.className = "metric-k";
+    k.textContent = label;
+    const v = document.createElement("span");
+    v.className = "metric-v";
+    v.textContent = value;
+    span.appendChild(k);
+    span.appendChild(v);
+    return span;
+  }
+
   /** Very small Markdown subset for ##, -, ** */
   function simpleMarkdown(raw) {
     let t = escapeHtml(raw);
@@ -115,7 +209,13 @@
       }
 
       if (data.kind === "reply") {
-        appendBubble("assistant", data.text || "");
+        appendAssistantReply(data.text || "", {
+          clarity_status: data.clarity_status,
+          confidence_score: data.confidence_score,
+          validation_result: data.validation_result,
+          validation_reason: data.validation_reason,
+          research_attempts: data.research_attempts,
+        });
       }
     } catch (e) {
       showError(String(e.message || e));
